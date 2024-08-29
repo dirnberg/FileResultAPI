@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Define paths
-UPLOAD_DIR="/data/uploads"
-RESULTS_DIR="/data/results"
-LOG_DIR="/data/logs"
+UPLOAD_DIR="/data"
+RESULTS_DIR="/data"
+LOG_DIR="/data"
 
 # Create necessary directories with proper permissions
 mkdir -p "$UPLOAD_DIR" "$RESULTS_DIR" "$LOG_DIR"
