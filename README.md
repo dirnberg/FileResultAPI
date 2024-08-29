@@ -1,6 +1,3 @@
-Certainly! Here is a comprehensive `README.md` for the **FileResultAPI** project. It includes a description, installation instructions, usage examples, and licensing information.
-
-```markdown
 # FileResultAPI
 
 **FileResultAPI** is a lightweight API service designed to handle file uploads, process them based on configurable settings, and return the result. The service runs inside a Docker container and includes features for logging and session management. This example demonstrates file handling with a ZIP archive, but the tool can be adapted for different types of processing.
