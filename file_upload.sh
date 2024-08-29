@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Define paths
-UPLOAD_DIR="/data"
-RESULTS_DIR="/data"
-LOG_DIR="/data"
+UPLOAD_DIR="/data/uploads"
+RESULTS_DIR="/data/results"
+LOG_DIR="/data/logs"
 
 # Create necessary directories with proper permissions
 mkdir -p "$UPLOAD_DIR" "$RESULTS_DIR" "$LOG_DIR"
@@ -40,9 +40,16 @@ process_files() {
         echo "$file" | base64 -d > "$session_path/$sanitized_filename"
     done
 
-    # Example processing (to be replaced with actual processing)
+    # Example processing (replace this with your actual external tool call)
     local result_file="$RESULTS_DIR/${session_id}_result.txt"
-    echo "Files processed for session $session_id" > "$result_file"
+
+    # Call the external tool with the specified configuration
+    # /path/to/external/tool --config /app/config/config.yml --input "$session_path" --output "$result_file"
+    result_file="Hello API!"    
+
+    # Log the result
+    echo "Processed files for session $session_id" > "$result_file"
+    echo "Processing completed for session $session_id" >> "$LOG_DIR/${session_id}_requests.log"
 
     # Output the result file
     cat "$result_file"
