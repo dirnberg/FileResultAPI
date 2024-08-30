@@ -1,89 +1,160 @@
-# FileResultAPI
+Certainly! Below is a complete `README.md` for your `FileResultApi` project. It includes sections for project overview, installation, usage, and testing.
 
-**FileResultAPI** is a lightweight API service designed to handle file uploads, process them based on configurable settings, and return the result. The service runs inside a Docker container and includes features for logging and session management. This example demonstrates file handling with a ZIP archive, but the tool can be adapted for different types of processing.
+---
 
-## Features
+# FileResultApi
 
-- **Upload Multiple Files**: Accept and handle multiple files in a single request.
-- **Configurable Processing**: Process files according to configuration settings.
-- **Result Handling**: Return the processed result in various formats.
-- **Session Management**: Unique session handling and logging for each request.
-- **Dockerized**: Easy deployment using Docker with configurable volume mounts for data persistence.
+**FileResultApi** is a Flask-based web service designed to handle file uploads, process them using an external tool, and return the results in a structured JSON format. The service also includes logging for tracking the operations performed.
+
+## Overview
+
+This API allows users to upload files, which are then processed by the `iocseek` tool (configured via `config.yml`). The results of the processing are converted to JSON and returned in the API response.
+
+## Project Structure
+
+```
+FileResultApi/
+│
+├── app.py                # Main application file
+├── config.yml            # Configuration file for iocseek
+├── Dockerfile            # Dockerfile for building the Docker image
+├── requirements.txt      # Python package dependencies
+└── README.md             # This documentation
+```
 
 ## Installation
 
 ### Prerequisites
 
-- [Docker](https://docs.docker.com/get-docker/) installed on your machine.
+- Docker (for containerized deployment)
+- Python 3.11 (for local development)
 
-### Steps
+### Docker Installation
+
+1. **Build the Docker Image:**
+
+   ```sh
+   docker build -t fileresultapi .
+   ```
+
+2. **Run the Docker Container:**
+
+   ```sh
+   docker run -p 3000:3000 fileresultapi
+   ```
+
+   The application will be available at `http://localhost:3000`.
+
+### Local Installation
 
 1. **Clone the Repository:**
 
-   ```bash
-   git clone https://github.com/yourusername/FileResultAPI.git
-   cd FileResultAPI
+   ```sh
+   git clone https://github.com/yourusername/FileResultApi.git
+   cd FileResultApi
    ```
 
-2. **Build the Docker Image:**
+2. **Create a Virtual Environment:**
 
-   ```bash
-   docker build -t file-result-api .
+   ```sh
+   python -m venv venv
+   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
    ```
 
-3. **Run the Docker Container:**
+3. **Install Dependencies:**
 
-   ```bash
-   docker run -p 8080:8080 \
-              -v /path/to/local/uploads:/data/uploads \
-              -v /path/to/local/results:/data/results \
-              -v /path/to/local/logs:/data/logs \
-              -e CLIENT_IP=$(curl -s ifconfig.me) \
-              file-result-api
+   ```sh
+   pip install -r requirements.txt
    ```
 
-   - **`-p 8080:8080`**: Maps port 8080 of the container to port 8080 on the host.
-   - **`-v /path/to/local/uploads:/data/uploads`**: Maps a local directory to the container's upload directory.
-   - **`-v /path/to/local/results:/data/results`**: Maps a local directory to the container's results directory.
-   - **`-v /path/to/local/logs:/data/logs`**: Maps a local directory to the container's logs directory.
-   - **`-e CLIENT_IP=$(curl -s ifconfig.me)`**: Sets the `CLIENT_IP` environment variable.
+4. **Run the Application:**
 
-## Usage
+   ```sh
+   python app.py
+   ```
 
-### Uploading Files
-
-To upload files, send a POST request to the running server with the files as form-data:
-
-```bash
-curl -X POST \
-     -F "file1=@/path/to/file1.txt" \
-     -F "file2=@/path/to/file2.txt" \
-     http://localhost:8080
-```
-
-The server will process the files and return the result. If you use the default processing, you will get a text file with the processing outcome.
-
-### Accessing Logs
-
-Log files for each session are stored in the `data/logs` directory. They include details like the timestamp, client IP, and user agent.
+   The application will be available at `http://localhost:3000`.
 
 ## Configuration
 
-- **`file_upload.sh`**: Modify this script to adjust file processing behavior or integrate with different tools.
-- **`config_file.conf`**: Use this configuration file for tool-specific settings.
+The application uses environment variables for configuration. You can set these in your environment or modify the `Dockerfile` to include them.
 
-## Example Docker Setup
+- `UPLOAD_FOLDER`: Directory for uploaded files (default: `/app/uploads`)
+- `RESULTS_FILE`: Path to the results file (default: `/app/uploads/results.yml`)
+- `IOCS_FILE`: Path to the `iocseek` tool (default: `/app/iocseek`)
+- `CONFIG_FILE`: Path to the configuration file for `iocseek` (default: `/app/config.yml`)
+- `ALLOWED_EXTENSIONS`: Comma-separated list of allowed file extensions (default: `md,yar,json,sigma,rules`)
 
-For demo purposes, the Docker setup includes a simple ZIP use case. To adapt it for other use cases:
+## Usage
 
-1. Modify `file_upload.sh` to handle different processing requirements.
-2. Update Dockerfile and configuration files as needed.
+### Uploading a File
+
+To upload a file to the API, use the following `curl` command:
+
+```sh
+curl -X POST http://localhost:3000/upload -F "file=@path/to/your/config.md" | python -m json.tool | pygmentize -l json
+```
+
+**Explanation:**
+
+- `curl -X POST http://localhost:3000/upload -F "file=@path/to/your/config.md"`: Sends a POST request with the file `config.md`. Replace `path/to/your/config.md` with the path to your file.
+- `python -m json.tool`: Formats the JSON response for readability.
+- `pygmentize -l json`: Adds syntax highlighting to the JSON response.
+
+### Example Response
+
+```json
+{
+    "filename": "config.md",
+    "files_in_uploads": [
+        "results.yml",
+        "config.md"
+    ],
+    "message": "File uploaded and processed successfully",
+    "path": "/app/uploads/config.md",
+    "results": {
+        "flags": [
+            "CTF{b8c1a066ea}",
+            "CTF{f51c6c8d86}",
+            "CTF{9fc5d3f019}",
+            "CTF{1ba7791df2}",
+            "CTF{889b5a7e45}"
+        ],
+        "max_points": 5,
+        "points_per_category": {
+            "Domains": "1/1",
+            "IP Addresses": "0/0",
+            "MAC Addresses": "1/1",
+            "MITRE Techniques": "1/1",
+            "Protocols": "0/0",
+            "SHA-256 Hashes": "1/1",
+            "URLs": "1/1"
+        },
+        "total_points": 5
+    }
+}
+```
+
+**Fields in the Response:**
+
+- **filename**: Name of the uploaded file.
+- **files_in_uploads**: List of files in the upload directory.
+- **message**: Status message indicating success.
+- **path**: Path where the file is stored.
+- **results**: Processed results in JSON format.
+
+## Troubleshooting
+
+If you encounter issues, check the following:
+
+- **Logs**: View the logs to see detailed error messages.
+- **File Permissions**: Ensure that the application has the necessary permissions to read/write files.
+- **Dependencies**: Verify that all dependencies are installed correctly.
+
+## Contributing
+
+Contributions are welcome! Please fork the repository, make your changes, and submit a pull request.
 
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## Contributing
-
-Feel free to fork the repository, make changes, and submit pull requests. Please ensure that your contributions follow the project's coding standards and include appropriate tests and documentation.
-

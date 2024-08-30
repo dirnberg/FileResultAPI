@@ -1,30 +1,34 @@
-# Use a minimal base image with bash and necessary utilities
-FROM alpine:latest
+# Use the official Python 3.11 slim image from the Docker Hub
+FROM python:3.11-slim
 
-# Install necessary packages: bash, curl, netcat
-RUN apk --no-cache add bash curl netcat-openbsd
+# Set environment variables
+ENV UPLOAD_FOLDER=/app/uploads
+ENV RESULTS_FILE=/app/uploads/results.yml
+ENV IOCS_FILE=/app/iocseek
+ENV CONFIG_FILE=/app/config.yml
+ENV ALLOWED_EXTENSIONS=md,yar,json,sigma,rules
+
+# Install any needed packages specified in requirements.txt
+COPY requirements.txt /app/
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+# Create the necessary directories
+RUN mkdir -p /app/uploads /app/config
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the script and configuration directory into the container
-COPY file_upload.sh /app/file_upload.sh
-COPY config/ /app/config/
+# Install Git and other necessary packages
+RUN apt-get update && \
+    apt-get install -y git && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy the external tool into the container
-#COPY external-tool /usr/local/bin/external-tool
+# Copy the current directory contents into the container at /app
+COPY . /app/
 
-# Make the script and external tool executable
-#RUN chmod +x /app/file_upload.sh /usr/local/bin/external-tool
+# Make port 3000 available to the world outside this container
+EXPOSE 3000
 
-# Create the data directory and its subdirectories
-RUN mkdir -p /data/uploads /data/results /data/logs
-
-# Expose the port the application will run on
-EXPOSE 8080
-
-# Use a non-root user for security reasons
-USER nobody
-
-# Run the script when the container starts
-CMD ["sh", "/app/file_upload.sh"]
+# Run app.py when the container launches
+CMD ["python", "app.py"]

@@ -1,1 +1,28 @@
+patterns:
+  ip_regex: "\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b"
+  mac_regex: "([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})"
+  mitre_regex: "T[0-9]{4}(\\.[0-9]{3})?"
+  url_regex: "https?://[^\\s/$.?#].[^\\s]*"
+  domain_regex: "[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}"
+  sha256_regex: "[a-fA-F0-9]{64}"
+  sha512_regex: "[a-fA-F0-9]{128}"
 
+lists:
+  ip_list:
+    []  # No IP addresses provided
+  mac_list:
+    - "00:0a:95:9d:68:16"  # Provided MAC address that was not reported
+  mitre_list:
+    - "T1078"  # Provided MITRE technique ID that was not reported
+  domain_list:
+    - "maliciousdomain.com"  # Provided domain that was not reported
+  url_list:
+    - "https://phishing-site.com/login"  # Provided URL that was not reported
+  protocol_list:
+    []  # No protocols provided
+  sha256_list:
+    - "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"  # Provided SHA-256 hash that was not reported
+
+salt_pin: "1234"  # 4-digit PIN used as salt for hashing
+hash_length: 10  # Length of the truncated hash
+flag_placeholder: "CTF"  # Placeholder for the flag format
