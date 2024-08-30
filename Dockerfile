@@ -27,6 +27,13 @@ RUN apt-get update && \
 # Copy the current directory contents into the container at /app
 COPY . /app/
 
+# Copy the iocseek tool into the container
+COPY iocseek /app/
+
+# Make the iocseek binary executable
+RUN chmod +x /app/iocseek
+
+
 # Make port 3000 available to the world outside this container
 EXPOSE 3000
 
